@@ -1,0 +1,38 @@
+---
+import Icon from './Icon.astro';
+import { defaultLocale, type Locale } from '../i18n/config';
+import { ui } from '../i18n/ui';
+import { localizedPage, pathFor, hasTranslation } from '../i18n/routes';
+
+interface Props {
+  /** English slugs. Pages without a translation are skipped in other languages. */
+  slugs: string[];
+  title?: string;
+  locale?: Locale;
+}
+const { slugs, locale = defaultLocale } = Astro.props;
+const title = Astro.props.title ?? ui[locale].relatedTitle;
+const items = slugs.filter((s) => hasTranslation(locale, s)).map((s) => ({ page: localizedPage(locale, s), href: pathFor(locale, s) }));
+---
+
+<section aria-labelledby="related-title" class="mt-20" data-reveal>
+  <h2 id="related-title" class="text-[1.75rem] font-bold leading-tight sm:text-3xl">{title}</h2>
+  <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {
+      items.map(({ page: p, href }) => (
+        <li>
+          <a
+            href={href}
+            class="card group flex h-full flex-col p-5 transition-transform duration-150 hover:-translate-y-0.5 hover:border-accent-ink motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+          >
+            <span class="flex items-center justify-between gap-3 text-lg font-semibold leading-snug">
+              {p.nav}
+              <Icon name="arrow" class="size-5 flex-none text-accent-ink" />
+            </span>
+            <span class="mt-1.5 text-[0.9375rem] leading-snug text-muted">{p.blurb}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>

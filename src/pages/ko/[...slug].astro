@@ -1,0 +1,8 @@
+---
+import { localePage } from '../../i18n/page';
+export const getStaticPaths = localePage.getStaticPaths('ko');
+const { page, enSlug } = Astro.props;
+import ToolPage from '../../components/ToolPage.astro';
+---
+
+<ToolPage page={page} locale="ko" enSlug={enSlug} />

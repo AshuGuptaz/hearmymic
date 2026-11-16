@@ -1,0 +1,67 @@
+---
+import TextPage from '../components/TextPage.astro';
+import { site } from '../data/site';
+
+const updated = new Intl.DateTimeFormat('en-US', { dateStyle: 'long' }).format(new Date('2026-11-11'));
+---
+
+<TextPage
+  title="Privacy Policy | HearMyMic"
+  description="How HearMyMic handles your data. Your audio and video are processed in your browser and never uploaded. Details on cookies and analytics."
+  path="/privacy"
+  h1="Privacy policy"
+  crumb="Privacy"
+>
+  <p class="text-muted">Last updated: {updated}</p>
+
+  <h2>The short version</h2>
+  <ul>
+    <li>Your audio and video never leave your device. Nothing you say or show is uploaded, stored or shared.</li>
+    <li>There are no accounts and we don’t ask for your name or email address.</li>
+    <li>The site may use basic analytics from Google. Details are below.</li>
+  </ul>
+
+  <h2>Microphone and camera</h2>
+  <p>
+    The tests on this site run entirely in your browser. When you allow access, the audio from your microphone and the
+    picture from your camera are processed by code running on your own device to draw the level meter, waveform and
+    preview.
+  </p>
+  <p>
+    The optional 5 second recording is kept in your browser’s memory so that you can play it back. It is not sent
+    anywhere, and it is discarded when you close or reload the page. Device details shown in the “Your microphone”
+    panel, such as the device name and sample rate, are displayed to you only and are not collected.
+  </p>
+  <p>
+    Your browser controls the permission. You can withdraw it at any time from the site settings in your browser’s
+    address bar.
+  </p>
+
+  <h2>Data stored on your device</h2>
+  <p>
+    If you use the light or dark mode button, your choice is saved in your browser’s local storage so the site looks the
+    same on your next visit. It contains no personal information.
+  </p>
+
+  <h2>Analytics</h2>
+  <p>
+    We may use Google Analytics to understand how many people visit and which pages are useful. It collects information
+    such as the pages you view, your approximate location, and your device and browser type. It does not collect your
+    audio, your video or your microphone details.
+  </p>
+
+  <h2>Hosting</h2>
+  <p>
+    The site is hosted on Cloudflare. Like any web host, Cloudflare processes technical information such as your IP
+    address in order to deliver pages and protect the site from abuse.
+  </p>
+
+  <h2>Children</h2>
+  <p>This site is a general-purpose tool and is not directed at children under 13.</p>
+
+  <h2>Changes and contact</h2>
+  <p>
+    If this policy changes, the date at the top of the page will change with it. Questions are welcome at{' '}
+    <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>.
+  </p>
+</TextPage>

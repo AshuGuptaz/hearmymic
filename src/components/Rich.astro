@@ -1,0 +1,20 @@
+---
+/** Renders page copy, turning `[label](/slug)` into links. See src/data/rich.ts. */
+import { segments } from '../data/rich';
+import { getPage } from '../data/pages';
+import { defaultLocale, type Locale } from '../i18n/config';
+import { hasTranslation, pathFor } from '../i18n/routes';
+
+interface Props {
+  text: string;
+  locale?: Locale;
+}
+const { text, locale = defaultLocale } = Astro.props;
+const parts = segments(text).map((s) => {
+  if (s.slug === undefined) return { text: s.text };
+  getPage(s.slug); // fail the build on a link to a page that doesn't exist
+  return hasTranslation(locale, s.slug) ? { text: s.text, href: pathFor(locale, s.slug) } : { text: s.text };
+});
+---
+
+{parts.map((p) => (p.href ? <a href={p.href} class="font-medium text-accent-ink underline underline-offset-[3px]">{p.text}</a> : p.text))}

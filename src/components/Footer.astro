@@ -1,0 +1,86 @@
+---
+import Logo from './Logo.astro';
+import { comingSoon, utilityLinks } from '../data/site';
+import type { PageGroup } from '../data/types';
+import { defaultLocale, type Locale } from '../i18n/config';
+import { ui, groupLabels } from '../i18n/ui';
+import { homePath, pagesFor } from '../i18n/routes';
+
+interface Props {
+  locale?: Locale;
+}
+const { locale = defaultLocale } = Astro.props;
+const t = ui[locale];
+const localized = pagesFor(locale);
+const byGroup = (group: PageGroup) => localized.filter((p) => p.group === group);
+// Only show groups that have pages in this language.
+const groups = (['test', 'platform', 'device', 'fix'] as PageGroup[]).filter((g) => byGroup(g).length > 0);
+const label = (g: PageGroup) => groupLabels[locale][g];
+const utilityLabels: Record<string, string> = {
+  '/about': t.utility.about,
+  '/privacy': t.utility.privacy,
+  '/terms': t.utility.terms,
+  '/contact': t.utility.contact,
+};
+const comingSoonLabels: Record<string, string> = { '/webcam-test': t.comingSoon.webcam, '/speaker-test': t.comingSoon.speaker };
+const year = new Date().getFullYear();
+const linkClass = 'inline-flex min-h-11 min-w-11 items-center text-muted hover:text-accent-ink hover:underline';
+---
+
+<footer class="mt-20 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)]">
+  <div class="container-page py-12">
+    <nav aria-label={t.footerNavAria} class="grid grid-cols-2 gap-x-6 gap-y-10 text-[0.9375rem] md:grid-cols-4">
+      {
+        groups.map((group) => (
+          <div>
+            <h2 class="mb-2 text-[0.8125rem] font-semibold uppercase tracking-wider text-text">
+              {label(group)}
+            </h2>
+            <ul>
+              {byGroup(group).map((p) => (
+                <li>
+                  <a href={locale === defaultLocale ? `/${p.slug}` : p.slug ? `/${locale}/${p.slug}` : `/${locale}`} class={linkClass}>
+                    {p.nav}
+                  </a>
+                </li>
+              ))}
+              {group === 'test' &&
+                comingSoon.map((c) => (
+                  <li>
+                    <span class="inline-flex min-h-11 items-center gap-1.5 text-muted">
+                      {comingSoonLabels[c.path] ?? c.label}
+                      <span class="rounded-full border border-border px-1.5 text-[0.6875rem] uppercase tracking-wide">
+                        {t.soon}
+                      </span>
+                    </span>
+                  </li>
+                ))}
+            </ul>
+          </div>
+        ))
+      }
+    </nav>
+
+    <div class="mt-12 flex flex-col gap-4 border-t border-border pt-8 text-[0.9375rem] text-muted md:flex-row md:items-center">
+      <a href={homePath(locale)} class="flex min-h-11 items-center gap-2.5 font-bold text-text">
+        <Logo class="size-7" />
+        <span translate="no">HearMyMic</span>
+      </a>
+      <p class="md:ml-2">{t.footerPrivacy}</p>
+      <ul class="flex flex-wrap gap-x-6 md:ml-auto">
+        {
+          utilityLinks.map((l) => (
+            <li>
+              <a href={l.href} class={linkClass}>
+                {utilityLabels[l.href] ?? l.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    <p class="mt-4 text-[0.8125rem] text-muted">
+      © {year} <span translate="no">HearMyMic</span>. {t.footerDisclaimer}
+    </p>
+  </div>
+</footer>

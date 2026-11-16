@@ -1,0 +1,146 @@
+---
+import Icon from './Icon.astro';
+import Logo from './Logo.astro';
+import { comingSoon } from '../data/site';
+import type { Locale } from '../i18n/config';
+import { ui } from '../i18n/ui';
+import { hasTranslation, homePath, pathFor } from '../i18n/routes';
+
+interface Props {
+  path: string;
+  locale: Locale;
+  switcher: { locale: Locale; label: string; lang: string; href: string; current: boolean }[];
+}
+const { path, locale, switcher } = Astro.props;
+const t = ui[locale];
+
+const items = [
+  { slug: '', label: t.nav.mic },
+  { slug: 'mic-test-with-playback', label: t.nav.playback },
+  { slug: 'hear-yourself-mic-test', label: t.nav.hearYourself },
+  { slug: 'webcam-and-mic-test', label: t.nav.webcam },
+  { slug: 'fix/mic-not-working', label: t.nav.fix },
+];
+// Only link to pages that exist in this language.
+const links = items.filter((i) => hasTranslation(locale, i.slug)).map((i) => ({ label: i.label, href: pathFor(locale, i.slug) }));
+const comingSoonLabels: Record<string, string> = { '/webcam-test': t.comingSoon.webcam, '/speaker-test': t.comingSoon.speaker };
+const current = (href: string) => (href === path ? 'page' : undefined);
+---
+
+<header class="border-b border-border bg-surface">
+  <div class="container-page flex h-16 items-center gap-3">
+    <a href={homePath(locale)} class="flex min-h-11 items-center gap-2.5 font-bold tracking-tight" aria-label={t.homeAria}>
+      <Logo />
+      <span translate="no" class="text-lg">HearMyMic</span>
+    </a>
+
+    <nav aria-label="Main" class="ml-auto hidden lg:block">
+      <ul class="flex items-center gap-1 text-[0.9375rem] font-medium">
+        {
+          links.map((l) => (
+            <li>
+              <a
+                href={l.href}
+                aria-current={current(l.href)}
+                class="flex min-h-11 items-center whitespace-nowrap rounded-full px-3.5 text-muted hover:bg-surface-2 hover:text-text aria-[current=page]:text-accent-ink"
+              >
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
+        {
+          comingSoon.map((c) => (
+            <li class="hidden xl:block">
+              <span class="flex min-h-11 items-center gap-1.5 whitespace-nowrap px-3.5 text-muted" aria-disabled="true">
+                {comingSoonLabels[c.path] ?? c.label}
+                <span class="rounded-full border border-border px-1.5 text-[0.6875rem] uppercase tracking-wide">
+                  {t.soon}
+                </span>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <details data-lang class="relative ml-auto lg:ml-1">
+      <summary
+        aria-label={t.language}
+        class="flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-full px-3 text-[0.9375rem] font-medium uppercase text-muted hover:bg-surface-2 hover:text-text [&::-webkit-details-marker]:hidden"
+      >
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+        <span>{locale}</span>
+      </summary>
+      <ul class="card absolute right-0 top-full z-40 mt-2 w-44 p-2 text-base font-medium">
+        {
+          switcher.map((l) => (
+            <li>
+              <a
+                href={l.href}
+                lang={l.lang}
+                hreflang={l.lang}
+                aria-current={l.current ? 'true' : undefined}
+                class="flex min-h-11 items-center rounded-xl px-3 hover:bg-surface-2 aria-[current=true]:text-accent-ink"
+              >
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </details>
+
+    <button
+      type="button"
+      data-theme-toggle
+      aria-pressed="false"
+      aria-label={t.darkMode}
+      class="grid size-11 cursor-pointer place-items-center rounded-full text-muted hover:bg-surface-2 hover:text-text"
+    >
+      <Icon name="moon" class="size-5 dark:hidden" />
+      <Icon name="sun" class="hidden size-5 dark:block" />
+    </button>
+
+    <details data-menu class="relative lg:hidden">
+      <summary
+        aria-label={t.menu}
+        class="grid size-11 list-none place-items-center rounded-full text-muted hover:bg-surface-2 hover:text-text [&::-webkit-details-marker]:hidden"
+      >
+        <Icon name="menu" class="size-6" />
+      </summary>
+      <nav
+        aria-label="Main"
+        class="card absolute right-0 top-full z-40 mt-2 w-64 overscroll-contain p-2 text-base font-medium"
+      >
+        <ul>
+          {
+            links.map((l) => (
+              <li>
+                <a
+                  href={l.href}
+                  aria-current={current(l.href)}
+                  class="flex min-h-11 items-center rounded-xl px-3 hover:bg-surface-2 aria-[current=page]:text-accent-ink"
+                >
+                  {l.label}
+                </a>
+              </li>
+            ))
+          }
+          {
+            comingSoon.map((c) => (
+              <li>
+                <span class="flex min-h-11 items-center justify-between px-3 text-muted" aria-disabled="true">
+                  {comingSoonLabels[c.path] ?? c.label}
+                  <span class="rounded-full border border-border px-1.5 text-[0.6875rem] uppercase tracking-wide">
+                    {t.soon}
+                  </span>
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </details>
+  </div>
+</header>

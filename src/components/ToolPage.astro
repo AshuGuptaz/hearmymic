@@ -1,0 +1,196 @@
+---
+/**
+ * The one template behind every tool page. Content comes from src/data/pages.
+ *
+ * Order: heading, tool, then the written content.
+ */
+import Base from '../layouts/Base.astro';
+import MicTool from './MicTool.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+import Related from './Related.astro';
+import Rich from './Rich.astro';
+import { plain } from '../data/rich';
+import { site } from '../data/site';
+import type { PageData } from '../data/types';
+import { defaultLocale, localeMeta, type Locale } from '../i18n/config';
+import { ui } from '../i18n/ui';
+import { pathFor, homePath } from '../i18n/routes';
+
+interface Props {
+  page: PageData;
+  locale?: Locale;
+  /** English slug of this page. Defaults to the page's own slug (English). */
+  enSlug?: string;
+}
+const { page, locale = defaultLocale } = Astro.props;
+const enSlug = Astro.props.enSlug ?? page.slug;
+const t = ui[locale];
+const lang = localeMeta[locale].lang;
+const path = pathFor(locale, enSlug);
+const isHome = enSlug === '';
+const url = new URL(path, site.url).href;
+
+type Block = { type: 'p'; text: string } | { type: 'ul'; items: { label?: string; text: string }[] };
+
+/** Turn paragraphs into blocks, grouping consecutive "- " lines into one list. */
+function toBlocks(lines: string[]): Block[] {
+  const blocks: Block[] = [];
+  for (const line of lines) {
+    if (!line.startsWith('- ')) {
+      blocks.push({ type: 'p', text: line });
+      continue;
+    }
+    const match = line.slice(2).match(/^([^:.]{1,32}): (.+)$/);
+    const item = match ? { label: match[1], text: match[2] } : { text: line.slice(2) };
+    const last = blocks.at(-1);
+    if (last?.type === 'ul') last.items.push(item);
+    else blocks.push({ type: 'ul', items: [item] });
+  }
+  return blocks;
+}
+
+const schema: object[] = [];
+if (isHome) {
+  schema.push(
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: site.name,
+      url: new URL(homePath(locale), site.url).href,
+      description: page.description,
+      applicationCategory: 'UtilitiesApplication',
+      operatingSystem: 'Any',
+      browserRequirements: 'Requires JavaScript and a browser with microphone support.',
+      inLanguage: lang,
+      isAccessibleForFree: true,
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      featureList: t.featureList,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: site.name,
+      alternateName: ['Hear My Mic', site.domain],
+      url: new URL(homePath(locale), site.url).href,
+      inLanguage: lang,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: site.name,
+      alternateName: 'Hear My Mic',
+      url: site.url,
+      logo: new URL('/logo.png', site.url).href,
+    },
+  );
+} else {
+  schema.push({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: t.crumbHome, item: new URL(homePath(locale), site.url).href },
+      { '@type': 'ListItem', position: 2, name: page.nav, item: url },
+    ],
+  });
+}
+if (page.faqs.length) {
+  schema.push({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: page.faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: plain(f.a) },
+    })),
+  });
+}
+
+const h2 = 'text-[1.75rem] font-bold leading-tight sm:text-3xl';
+---
+
+<Base title={page.title} description={page.description} path={path} schema={schema} locale={locale} enSlug={enSlug}>
+  <div class="container-page">
+    {!isHome && <Breadcrumbs current={page.nav} locale={locale} />}
+
+    <header class:list={['mx-auto max-w-2xl pb-7 text-center', isHome ? 'pt-9 sm:pt-12' : 'pt-4 sm:pt-6']}>
+      <h1 class="text-4xl font-extrabold leading-[1.08] sm:text-5xl">{page.h1}</h1>
+      <p class="mx-auto mt-3 max-w-xl text-muted">{page.lede}</p>
+    </header>
+
+    <MicTool variant={page.tool} locale={locale} />
+
+    <div class="mx-auto mt-14 max-w-[44rem]">
+      <div class="min-w-0">
+        <section aria-labelledby="intro-title">
+          <h2 id="intro-title" class={h2}>{page.introTitle}</h2>
+          <div class="prose-site mt-4">
+            {page.intro.map((p) => <p><Rich text={p} locale={locale} /></p>)}
+          </div>
+        </section>
+
+        <section aria-labelledby="steps-title" class="mt-14">
+          <h2 id="steps-title" class={h2}>{page.stepsTitle}</h2>
+          <ol class="mt-6 space-y-5">
+            {
+              page.steps.map((step, i) => (
+                <li class="flex gap-4">
+                  <span
+                    aria-hidden="true"
+                    class="mt-0.5 grid size-9 flex-none place-items-center rounded-full bg-accent-soft text-base font-bold tabular-nums text-accent-ink"
+                  >
+                    {i + 1}
+                  </span>
+                  <div class="min-w-0">
+                    <h3 class="text-xl font-semibold leading-snug">{step.title}</h3>
+                    <p class="mt-1 text-muted"><Rich text={step.body} locale={locale} /></p>
+                  </div>
+                </li>
+              ))
+            }
+          </ol>
+        </section>
+
+        {
+          page.guide?.map((section, i) => (
+            <section class="mt-14" data-reveal={i > 0 ? '' : undefined}>
+              <h2 class={h2}>{section.heading}</h2>
+              <div class="prose-site mt-4">
+                {toBlocks(section.body).map((block) =>
+                  block.type === 'p' ? (
+                    <p><Rich text={block.text} locale={locale} /></p>
+                  ) : (
+                    <ul>
+                      {block.items.map((item) => (
+                        <li>
+                          {item.label && <strong class="font-semibold">{item.label}: </strong>}
+                          <Rich text={item.text} locale={locale} />
+                        </li>
+                      ))}
+                    </ul>
+                  ),
+                )}
+              </div>
+            </section>
+          ))
+        }
+
+        <section aria-labelledby="faq-title" class="mt-14" data-reveal={page.guide?.length ? '' : undefined}>
+          <h2 id="faq-title" class={h2}>{t.faqTitle}</h2>
+          <div class="mt-6 divide-y divide-border border-y border-border">
+            {
+              page.faqs.map((faq) => (
+                <div class="py-5">
+                  <h3 class="text-xl font-semibold leading-snug">{faq.q}</h3>
+                  <p class="mt-2 text-muted"><Rich text={faq.a} locale={locale} /></p>
+                </div>
+              ))
+            }
+          </div>
+        </section>
+      </div>
+
+    </div>
+
+    <Related slugs={page.related} locale={locale} />
+  </div>
+</Base>

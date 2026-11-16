@@ -1,0 +1,22 @@
+---
+import { defaultLocale, type Locale } from '../i18n/config';
+import { ui } from '../i18n/ui';
+import { homePath } from '../i18n/routes';
+
+interface Props {
+  current: string;
+  locale?: Locale;
+}
+const { current, locale = defaultLocale } = Astro.props;
+const t = ui[locale];
+---
+
+<nav aria-label={t.breadcrumbAria} class="pt-4 text-[0.875rem] text-muted">
+  <ol class="flex flex-wrap items-center gap-x-2">
+    <li>
+      <a href={homePath(locale)} class="inline-flex min-h-11 items-center hover:text-accent-ink hover:underline">{t.crumbHome}</a>
+    </li>
+    <li aria-hidden="true">/</li>
+    <li aria-current="page" class="font-medium text-text">{current}</li>
+  </ol>
+</nav>

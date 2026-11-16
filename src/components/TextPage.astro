@@ -1,0 +1,41 @@
+---
+/** Simple reading layout for About, Privacy and Contact. */
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+import { site } from '../data/site';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  h1: string;
+  crumb: string;
+}
+const { title, description, path, h1, crumb } = Astro.props;
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Mic test', item: site.url },
+      { '@type': 'ListItem', position: 2, name: crumb, item: new URL(path, site.url).href },
+    ],
+  },
+];
+---
+
+<Base title={title} description={description} path={path} schema={schema}>
+  <div class="container-page">
+    <Breadcrumbs current={crumb} />
+    <article class="max-w-[44rem] pb-8 pt-4 sm:pt-6">
+      <h1 class="text-4xl font-extrabold leading-[1.08] sm:text-5xl">{h1}</h1>
+      <div class="prose-site mt-6">
+        <slot />
+      </div>
+      <p class="mt-10">
+        <a href="/" class="btn btn-primary">Test my mic</a>
+      </p>
+    </article>
+  </div>
+</Base>

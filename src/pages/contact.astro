@@ -1,0 +1,36 @@
+---
+import TextPage from '../components/TextPage.astro';
+import { site } from '../data/site';
+---
+
+<TextPage
+  title="Contact HearMyMic"
+  description="Get in touch with HearMyMic. Report a problem with the mic test, suggest an improvement, or ask a question."
+  path="/contact"
+  h1="Contact"
+  crumb="Contact"
+>
+  <p>
+    Questions, bug reports and suggestions are all welcome. Email{' '}
+    <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>.
+  </p>
+
+  <h2>Reporting a problem with the test</h2>
+  <p>It helps a lot if you include:</p>
+  <ul>
+    <li>Your device and operating system, for example “MacBook Air, macOS 15” or “Pixel 8, Android 15”.</li>
+    <li>Your browser and its version.</li>
+    <li>The microphone or headset you were testing.</li>
+    <li>What you expected to happen, and what happened instead, including any message the tool showed.</li>
+  </ul>
+
+  <h2>Before you write</h2>
+  <p>
+    If your microphone isn’t being picked up, the troubleshooting guides solve most cases in a couple of minutes:
+  </p>
+  <ul>
+    <li><a href="/fix/mic-not-working">Mic not working</a></li>
+    <li><a href="/fix/mic-permission-blocked">Microphone permission blocked</a></li>
+    <li><a href="/fix/mic-too-quiet">Mic too quiet</a></li>
+  </ul>
+</TextPage>

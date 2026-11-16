@@ -1,0 +1,50 @@
+---
+import TextPage from '../components/TextPage.astro';
+---
+
+<TextPage
+  title="About HearMyMic: A Free, Private Mic Test"
+  description="HearMyMic is a free online microphone and webcam test that runs entirely in your browser. Learn how it works and what it can and can’t measure."
+  path="/about"
+  h1="About HearMyMic"
+  crumb="About"
+>
+  <p>
+    <span translate="no">HearMyMic</span> is a free tool for one job: checking that your microphone works and hearing how
+    you sound, before a call, a stream or a recording.
+  </p>
+
+  <h2>How it works</h2>
+  <p>
+    When you press “Test my mic”, your browser asks for permission to use your microphone. Once you allow it, the page
+    reads the audio signal directly on your device and draws the level meter and waveform you see on screen. Recording
+    and playback, live monitoring and the camera preview all work the same way: inside your browser tab.
+  </p>
+  <p>
+    There is no server receiving your audio or video, no account, and no app to install. When you close the page, the
+    microphone turns off and any recording is gone.
+  </p>
+
+  <h2>What it can and can’t tell you</h2>
+  <p>
+    The test is a practical check. It tells you whether a microphone is connected and allowed, which device your browser
+    is using, how strong your signal is, and how you sound on a short recording.
+  </p>
+  <p>
+    It isn’t a calibrated measuring instrument. Levels, settings and latency are based on what your browser reports, and
+    browsers process audio before a web page sees it. Apps such as Zoom, Teams and Discord then add processing of their
+    own. Treat the results as a good guide, not as exact figures.
+  </p>
+
+  <h2>Cost and privacy</h2>
+  <p>
+    <span translate="no">HearMyMic</span> is free to use, with no account and no sign-up. See the
+    <a href="/privacy">privacy policy</a> for how your data is handled.
+  </p>
+
+  <h2>Get in touch</h2>
+  <p>
+    Found a problem, or a device the test doesn’t handle well? We’d like to hear about it. Details are on the
+    <a href="/contact">contact page</a>.
+  </p>
+</TextPage>

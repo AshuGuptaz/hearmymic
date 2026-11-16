@@ -1,0 +1,450 @@
+@import "tailwindcss";
+
+/* Dark mode is driven by data-theme on <html> (set before first paint). */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ---------- Design tokens ---------- */
+:root {
+  color-scheme: light;
+  --bg: #f7f8fc;
+  --surface: #ffffff;
+  --surface-2: #f1f3fa;
+  --text: #0f172a;
+  --muted: #475569;
+  --border: #e2e6f0;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-ink: #1d4ed8;
+  --accent-soft: #eaf1ff;
+  --ok: #15803d;
+  --warn: #b45309;
+  --danger: #b91c1c;
+  --shadow-color: 15 23 42;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0b0d14;
+  --surface: #131623;
+  --surface-2: #1a1e2e;
+  --text: #e8eaf2;
+  --muted: #a4abc0;
+  --border: #272c3f;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-ink: #93c5fd;
+  --accent-soft: #12254d;
+  --ok: #4ade80;
+  --warn: #fbbf24;
+  --danger: #f87171;
+  --shadow-color: 0 0 0;
+}
+
+@theme inline {
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+
+  --radius-card: 1.25rem;
+  --radius-tool: 1.75rem;
+
+  --shadow-card: 0 1px 2px rgb(var(--shadow-color) / 0.04),
+    0 10px 30px -14px rgb(var(--shadow-color) / 0.14);
+  --shadow-tool: 0 1px 2px rgb(var(--shadow-color) / 0.05),
+    0 30px 60px -30px rgb(var(--shadow-color) / 0.25);
+}
+
+/* ---------- Base ---------- */
+@layer base {
+  html {
+    background-color: var(--bg);
+    color: var(--text);
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    scroll-padding-top: 1.5rem;
+  }
+
+  body {
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  @media (min-width: 48rem) {
+    body {
+      font-size: 1.125rem;
+    }
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+    scroll-margin-top: 1.5rem;
+  }
+
+  p,
+  li,
+  dd {
+    text-wrap: pretty;
+  }
+
+  a,
+  button,
+  select,
+  summary,
+  label {
+    touch-action: manipulation;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent-ink);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  select {
+    background-color: var(--surface);
+    color: var(--text);
+  }
+
+  summary {
+    cursor: pointer;
+  }
+}
+
+/* ---------- Components ---------- */
+@layer components {
+  .container-page {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: max(1.25rem, env(safe-area-inset-left))
+      max(1.25rem, env(safe-area-inset-right));
+  }
+
+  /* Buttons: base owns layout + motion, variants own tone. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.2;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 150ms ease, opacity 150ms ease;
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .btn:disabled,
+  .btn[aria-disabled="true"] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+  }
+  @media (hover: hover) {
+    .btn:not(:disabled):hover {
+      transform: translateY(-1px);
+    }
+    .btn:not(:disabled):active {
+      transform: scale(0.97);
+    }
+  }
+
+  .btn-primary {
+    background-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 8px 20px -8px rgb(37 99 235 / 0.55);
+  }
+  @media (hover: hover) {
+    .btn-primary:not(:disabled):hover {
+      background-color: var(--accent-hover);
+    }
+  }
+
+  .btn-quiet {
+    background-color: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  @media (hover: hover) {
+    .btn-quiet:not(:disabled):hover {
+      border-color: var(--accent-ink);
+      color: var(--accent-ink);
+    }
+  }
+
+  .btn-lg {
+    min-height: 3.75rem;
+    padding: 1rem 2.25rem;
+    font-size: 1.1875rem;
+  }
+
+  .link {
+    color: var(--accent-ink);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  .link:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  .card {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* ----- Tool: stacked views that cross-fade without changing height ----- */
+  .tool-stage {
+    display: grid;
+  }
+  .tool-view {
+    grid-area: 1 / 1;
+    min-width: 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition: opacity 200ms ease, transform 200ms ease, visibility 0s linear 200ms;
+  }
+  .tool-view.is-active {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition-delay: 0s;
+  }
+
+  /* Pulsing ring behind the live mic button. */
+  .mic-live {
+    position: relative;
+  }
+  .mic-live::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background-color: var(--accent);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .tool-view.is-active .mic-live::before {
+    animation: mic-pulse 1.8s ease-out infinite;
+  }
+
+  /* Level meter: fill and peak marker move with transforms only. */
+  .meter-track {
+    position: relative;
+    height: 0.875rem;
+    border-radius: 999px;
+    background-color: var(--surface-2);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .meter-fill {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #22c55e 0%, #22c55e 62%, #f59e0b 84%, #ef4444 100%);
+  }
+  /* The gradient is revealed by sliding a cover instead of scaling it,
+     so colours stay tied to the level position. */
+  .meter-cover {
+    position: absolute;
+    inset: 0;
+    background-color: var(--surface-2);
+    transform: translateX(0%);
+    will-change: transform;
+  }
+  .meter-peak {
+    position: absolute;
+    inset: 0;
+    transform: translateX(0%);
+    will-change: transform;
+  }
+  .meter-peak::before {
+    content: "";
+    position: absolute;
+    left: -2px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    border-radius: 2px;
+    background-color: var(--text);
+    opacity: 0.7;
+  }
+
+  /* Switch (Hear yourself live) */
+  .switch {
+    position: relative;
+    flex: none;
+    width: 3.25rem;
+    height: 2rem;
+    border-radius: 999px;
+    background-color: var(--border);
+    border: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .switch::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 999px;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+    transition: transform 180ms ease;
+  }
+  /* Invisible padding so the tap target is at least 44px. */
+  .switch::before {
+    content: "";
+    position: absolute;
+    inset: -7px -5px;
+  }
+  .switch:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .switch[aria-checked="true"] {
+    background-color: var(--accent);
+    border-color: var(--accent);
+  }
+  .switch[aria-checked="true"]::after {
+    transform: translateX(1.25rem);
+  }
+
+  /* Success checkmark pop */
+  .pop-in {
+    animation: pop-in 240ms cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
+  }
+
+  .spinner {
+    width: 1.125rem;
+    height: 1.125rem;
+    border-radius: 999px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    animation: spin 700ms linear infinite;
+  }
+
+  /* Long-form copy written in data files */
+  .prose-site > * + * {
+    margin-top: 1.1em;
+  }
+  .prose-site h2 {
+    font-size: 1.625rem;
+    line-height: 1.2;
+    font-weight: 700;
+    margin-top: 2em;
+  }
+  .prose-site h3 {
+    font-size: 1.25rem;
+    line-height: 1.3;
+    font-weight: 650;
+    margin-top: 1.6em;
+  }
+  .prose-site ul {
+    list-style: disc;
+    padding-left: 1.25em;
+  }
+  .prose-site li + li {
+    margin-top: 0.4em;
+  }
+  .prose-site a {
+    color: var(--accent-ink);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* One-time scroll reveal. The class is only added by JS to sections that
+     start below the fold, so nothing above the fold moves on load. */
+  .reveal-pending {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  .reveal-run {
+    transition: opacity 500ms ease, transform 500ms ease;
+  }
+}
+
+@keyframes mic-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Non-essential motion off. The live level meter is functional and stays. */
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .tool-view,
+  .switch::after,
+  .reveal-run {
+    transition: none !important;
+  }
+  .btn:hover,
+  .btn:active {
+    transform: none !important;
+  }
+  .tool-view {
+    transform: none;
+  }
+  .tool-view.is-active .mic-live::before,
+  .pop-in {
+    animation: none;
+  }
+  .spinner {
+    animation-duration: 1.6s;
+  }
+  .reveal-pending {
+    opacity: 1;
+    transform: none;
+  }
+}

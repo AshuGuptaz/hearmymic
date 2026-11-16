@@ -1,0 +1,23 @@
+---
+/**
+ * Generates every tool page from src/data/pages.
+ * The homepage is the entry with an empty slug.
+ */
+import type { GetStaticPaths } from 'astro';
+import ToolPage from '../components/ToolPage.astro';
+import { pages } from '../data/pages';
+import type { PageData } from '../data/types';
+
+export const getStaticPaths = (() =>
+  pages.map((page) => ({
+    params: { slug: page.slug || undefined },
+    props: { page },
+  }))) satisfies GetStaticPaths;
+
+interface Props {
+  page: PageData;
+}
+const { page } = Astro.props;
+---
+
+<ToolPage page={page} />

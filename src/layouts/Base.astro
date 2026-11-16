@@ -1,0 +1,156 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
+import { defaultLocale, locales, localeMeta, type Locale } from '../i18n/config';
+import { ui } from '../i18n/ui';
+import { alternatesFor, hasTranslation, pathFor, homePath } from '../i18n/routes';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Path with a leading slash, e.g. "/zoom-mic-test". */
+  path: string;
+  /** JSON-LD objects to embed. */
+  schema?: object[];
+  noindex?: boolean;
+  /** Language of this page. Defaults to English. */
+  locale?: Locale;
+  /** English slug of the page, when it has translations. Drives hreflang and the language switcher. */
+  enSlug?: string;
+}
+
+const { title, description, path, schema = [], noindex = false, locale = defaultLocale, enSlug } = Astro.props;
+const t = ui[locale];
+const meta = localeMeta[locale];
+const abs = (p: string) => new URL(p, site.url).href;
+
+// hreflang: every language that has this page (including itself), plus x-default.
+// Only emitted for indexable pages that are part of the translated set.
+const alternates = enSlug !== undefined && !noindex ? alternatesFor(enSlug) : [];
+const hreflangs = alternates.length > 1 ? alternates : [];
+
+// Language switcher: same page where translated, otherwise that language's homepage.
+const switcher = locales.map((l) => ({
+  locale: l,
+  label: localeMeta[l].label,
+  lang: localeMeta[l].lang,
+  href: enSlug !== undefined && hasTranslation(l, enSlug) ? pathFor(l, enSlug) : homePath(l),
+  current: l === locale,
+}));
+const canonical = new URL(path, site.url).href;
+const ogImage = new URL(site.ogImage, site.url).href;
+
+---
+
+<!doctype html>
+<html lang={meta.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {
+      hreflangs.map((a) => <link rel="alternate" hreflang={a.hreflang} href={abs(a.path)} />)
+    }
+    {hreflangs.length > 0 && <link rel="alternate" hreflang="x-default" href={abs(pathFor(defaultLocale, enSlug!))} />}
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#f7f8fc" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content={meta.og} />
+    {hreflangs.filter((a) => a.locale !== locale).map((a) => <meta property="og:locale:alternate" content={localeMeta[a.locale].og} />)}
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={t.ogImageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    {/* Set the theme before first paint so there is no flash. */}
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        var stored = null;
+        try {
+          stored = localStorage.getItem('theme');
+        } catch (e) {}
+        var dark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        d.dataset.theme = dark ? 'dark' : 'light';
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.content = dark ? '#0b0d14' : '#f7f8fc';
+      })();
+    </script>
+
+    {schema.map((item) => <script is:inline type="application/ld+json" set:html={JSON.stringify(item)} />)}
+
+    {/* Google tag (GTM-5ZJCH8G2) */}
+    <script is:inline async src="https://www.googletagmanager.com/gtm.js?id=GTM-5ZJCH8G2"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    </script>
+    <script is:inline async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3892437184117131" crossorigin="anonymous"></script>
+  </head>
+  <body class="flex min-h-dvh flex-col bg-bg font-sans text-text">
+    <a
+      href="#main"
+      class="btn btn-primary sr-only left-4 top-4 z-50 focus:not-sr-only focus:absolute"
+      >{t.skip}</a
+    >
+    <Header path={path} locale={locale} switcher={switcher} />
+    <main id="main" class="flex-1">
+      <slot />
+    </main>
+    <Footer locale={locale} />
+
+    <script>
+      import '../scripts/site';
+    </script>
+
+    {/* Analytics loads only after the page is interactive, and only when an ID is set. */}
+    {
+      site.gaId && (
+        <script is:inline define:vars={{ gaId: site.gaId }}>
+          (function () {
+            function add(src, attrs) {
+              var s = document.createElement('script');
+              s.async = true;
+              s.src = src;
+              for (var k in attrs || {}) s.setAttribute(k, attrs[k]);
+              document.head.appendChild(s);
+            }
+            function load() {
+              if (gaId) {
+                window.dataLayer = window.dataLayer || [];
+                window.gtag = function () { window.dataLayer.push(arguments); };
+                window.gtag('js', new Date());
+                window.gtag('config', gaId);
+                add('https://www.googletagmanager.com/gtag/js?id=' + gaId);
+              }
+            }
+            function idle() {
+              if ('requestIdleCallback' in window) requestIdleCallback(load, { timeout: 4000 });
+              else setTimeout(load, 1500);
+            }
+            if (document.readyState === 'complete') idle();
+            else window.addEventListener('load', idle, { once: true });
+          })();
+        </script>
+      )
+    }
+  </body>
+</html>
